@@ -63,5 +63,9 @@
     "name": "Michael Hemmersbach",
     "email": "spam@familie-hemmersbach.com"
   },
-  "homepage": "https://www.npmjs.com/package/n8n-nodes-hemmilicious-webuntis"
+  "homepage": "https://www.npmjs.com/package/n8n-nodes-hemmilicious-webuntis",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hemmilicious/n8n-nodes-hemmilicious-webuntis.git"
+  }
 }
