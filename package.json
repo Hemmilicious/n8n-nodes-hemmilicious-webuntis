@@ -67,5 +67,8 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Hemmilicious/n8n-nodes-hemmilicious-webuntis.git"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
