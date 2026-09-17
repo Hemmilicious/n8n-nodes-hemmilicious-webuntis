@@ -16,22 +16,30 @@ export class WebUntisApi implements ICredentialType {
 
 	properties: INodeProperties[] = [
 		{
-			displayName: 'Configuration',
+			displayName: 'Authentication',
 			name: 'configurationMode',
 			type: 'options',
 			options: [
 				{
-					name: 'Manual',
+					name: 'Secret Key (Manual)',
 					value: 'manual',
+					description:
+						'Use the WebUntis mobile/QR secret key. This keeps compatibility with credentials created with version 0.1.0.',
+				},
+				{
+					name: 'Username + Password',
+					value: 'password',
+					description:
+						'Use the normal WebUntis username and password login',
 				},
 				{
 					name: 'Untis QR URL',
 					value: 'qrUrl',
+					description:
+						'Use the complete untis://setschool?... value from WebUntis',
 				},
 			],
 			default: 'manual',
-			description:
-				'Choose whether to enter the WebUntis connection details manually or use an Untis QR URL',
 		},
 		{
 			displayName: 'Server',
@@ -40,10 +48,11 @@ export class WebUntisApi implements ICredentialType {
 			default: '',
 			required: true,
 			placeholder: 'demo.webuntis.com',
-			description: 'WebUntis server hostname without protocol',
+			description:
+				'WebUntis server hostname without https://',
 			displayOptions: {
 				show: {
-					configurationMode: ['manual'],
+					configurationMode: ['manual', 'password'],
 				},
 			},
 		},
@@ -54,10 +63,11 @@ export class WebUntisApi implements ICredentialType {
 			default: '',
 			required: true,
 			placeholder: 'demo-school',
-			description: 'WebUntis school identifier',
+			description:
+				'WebUntis school identifier/login name',
 			displayOptions: {
 				show: {
-					configurationMode: ['manual'],
+					configurationMode: ['manual', 'password'],
 				},
 			},
 		},
@@ -66,10 +76,10 @@ export class WebUntisApi implements ICredentialType {
 			name: 'schoolNumber',
 			type: 'string',
 			default: '',
-			required: true,
+			required: false,
 			placeholder: '1234567',
 			description:
-				'WebUntis school number. Stored as text to preserve the exact value.',
+				'Optional school number from the mobile configuration. It is stored for completeness but is not required by the webuntis login constructor.',
 			displayOptions: {
 				show: {
 					configurationMode: ['manual'],
@@ -85,7 +95,7 @@ export class WebUntisApi implements ICredentialType {
 			placeholder: 'demo-user',
 			displayOptions: {
 				show: {
-					configurationMode: ['manual'],
+					configurationMode: ['manual', 'password'],
 				},
 			},
 		},
@@ -93,14 +103,12 @@ export class WebUntisApi implements ICredentialType {
 			displayName: 'Secret Key',
 			name: 'secret',
 			type: 'string',
-			typeOptions: {
-				password: true,
-			},
+			typeOptions: { password: true },
 			default: '',
 			required: true,
 			placeholder: 'FAKE_SECRET',
 			description:
-				'Secret from the WebUntis mobile/QR configuration. This is not a normal WebUntis password.',
+				'Secret key from the WebUntis mobile/QR setup. This is not the normal WebUntis password.',
 			displayOptions: {
 				show: {
 					configurationMode: ['manual'],
@@ -108,18 +116,31 @@ export class WebUntisApi implements ICredentialType {
 			},
 		},
 		{
+			displayName: 'Password',
+			name: 'password',
+			type: 'string',
+			typeOptions: { password: true },
+			default: '',
+			required: true,
+			description:
+				'Normal WebUntis password. Stored only in the n8n Credential system.',
+			displayOptions: {
+				show: {
+					configurationMode: ['password'],
+				},
+			},
+		},
+		{
 			displayName: 'Untis QR URL',
 			name: 'qrUrl',
 			type: 'string',
-			typeOptions: {
-				password: true,
-			},
+			typeOptions: { password: true },
 			default: '',
 			required: true,
 			placeholder:
 				'untis://setschool?url=...&school=...&user=...&key=...&schoolNumber=...',
 			description:
-				'Sensitive Untis mobile configuration URL containing the secret authentication key',
+				'Sensitive mobile configuration value containing the secret authentication key',
 			displayOptions: {
 				show: {
 					configurationMode: ['qrUrl'],

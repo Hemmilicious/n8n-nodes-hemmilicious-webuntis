@@ -10,7 +10,9 @@ const NETWORK_ERROR_CODES = new Set([
 	'EAI_AGAIN',
 ]);
 
-function getObject(value: unknown): Record<string, unknown> | undefined {
+function getObject(
+	value: unknown,
+): Record<string, unknown> | undefined {
 	return typeof value === 'object' && value !== null
 		? (value as Record<string, unknown>)
 		: undefined;
@@ -117,4 +119,10 @@ export function toSafeWebUntisError(
 	}
 
 	return new Error('WebUntis request failed');
+}
+
+export function safeErrorMessage(error: unknown): string {
+	return error instanceof Error
+		? error.message
+		: 'WebUntis request failed';
 }

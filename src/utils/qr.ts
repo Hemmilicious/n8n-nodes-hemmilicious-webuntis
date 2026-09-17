@@ -6,10 +6,7 @@ export interface ParsedUntisQrUrl {
 	secret: string;
 }
 
-function requireValue(
-	params: URLSearchParams,
-	name: string,
-): string {
+function requireValue(params: URLSearchParams, name: string): string {
 	const value = params.get(name)?.trim();
 
 	if (!value) {
@@ -70,7 +67,6 @@ export function parseUntisQrUrl(qrUrl: string): ParsedUntisQrUrl {
 	const school = requireValue(parsed.searchParams, 'school');
 	const username = requireValue(parsed.searchParams, 'user');
 	const secret = requireValue(parsed.searchParams, 'key');
-
 	const schoolNumber =
 		parsed.searchParams.get('schoolNumber')?.trim() || undefined;
 

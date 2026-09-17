@@ -9,6 +9,7 @@ interface ShortDataLike {
 	id?: number;
 	name?: string;
 	longname?: string;
+	longName?: string;
 }
 
 export interface NormalizedTimetableEntry {
@@ -66,7 +67,6 @@ function optionalString(
 	}
 
 	const trimmed = value.trim();
-
 	return trimmed || undefined;
 }
 
@@ -84,17 +84,15 @@ function getFirstShortData(
 	}
 
 	return {
-		id:
-			typeof first.id === 'number'
-				? first.id
-				: undefined,
-		name:
-			typeof first.name === 'string'
-				? first.name
-				: undefined,
+		id: typeof first.id === 'number' ? first.id : undefined,
+		name: typeof first.name === 'string' ? first.name : undefined,
 		longname:
 			typeof first.longname === 'string'
 				? first.longname
+				: undefined,
+		longName:
+			typeof first.longName === 'string'
+				? first.longName
 				: undefined,
 	};
 }
@@ -104,6 +102,7 @@ function longName(
 ): string {
 	return (
 		value?.longname?.trim() ||
+		value?.longName?.trim() ||
 		value?.name?.trim() ||
 		''
 	);
@@ -115,6 +114,7 @@ function shortName(
 	return (
 		value?.name?.trim() ||
 		value?.longname?.trim() ||
+		value?.longName?.trim() ||
 		''
 	);
 }
@@ -133,7 +133,6 @@ export function normalizeTimetableLesson(
 	const schoolClass = getFirstShortData(value.kl);
 
 	const code = optionalString(value, 'code');
-
 	const status: NormalizedTimetableEntry['status'] =
 		code === 'cancelled'
 			? 'cancelled'
@@ -172,7 +171,6 @@ export function normalizeTimetableLesson(
 
 	const activityType =
 		optionalString(value, 'activityType');
-
 	const info = optionalString(value, 'info');
 
 	if (activityType) {

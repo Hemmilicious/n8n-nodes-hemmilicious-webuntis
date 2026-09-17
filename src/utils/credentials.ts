@@ -5,12 +5,16 @@ import {
 	parseUntisQrUrl,
 } from './qr';
 
+export type WebUntisAuthenticationMode = 'secret' | 'password';
+
 export interface WebUntisResolvedCredentials {
+	authentication: WebUntisAuthenticationMode;
 	server: string;
 	school: string;
 	schoolNumber?: string;
 	username: string;
-	secret: string;
+	secret?: string;
+	password?: string;
 }
 
 function getStringCredential(
@@ -47,17 +51,31 @@ export function resolveWebUntisCredentials(
 		getStringCredential(credentials, 'configurationMode') || 'manual';
 
 	if (configurationMode === 'qrUrl') {
-		const qrUrl = requireCredential(
-			credentials,
-			'qrUrl',
-			'Untis QR URL',
+		const parsed = parseUntisQrUrl(
+			requireCredential(
+				credentials,
+				'qrUrl',
+				'Untis QR URL',
+			),
 		);
 
-		return parseUntisQrUrl(qrUrl);
+		return {
+			authentication: 'secret',
+			server: parsed.server,
+			school: parsed.school,
+			schoolNumber: parsed.schoolNumber,
+			username: parsed.username,
+			secret: parsed.secret,
+		};
 	}
 
-	if (configurationMode !== 'manual') {
-		throw new Error('Invalid WebUntis credential configuration mode');
+	if (
+		configurationMode !== 'manual' &&
+		configurationMode !== 'password'
+	) {
+		throw new Error(
+			'Invalid WebUntis credential authentication mode',
+		);
 	}
 
 	const server = requireCredential(
@@ -65,36 +83,44 @@ export function resolveWebUntisCredentials(
 		'server',
 		'Server',
 	);
-
 	const school = requireCredential(
 		credentials,
 		'school',
 		'School',
 	);
-
-	const schoolNumber = requireCredential(
-		credentials,
-		'schoolNumber',
-		'School Number',
-	);
-
 	const username = requireCredential(
 		credentials,
 		'username',
 		'Username',
 	);
+	const schoolNumber =
+		getStringCredential(credentials, 'schoolNumber') || undefined;
 
-	const secret = requireCredential(
-		credentials,
-		'secret',
-		'Secret Key',
-	);
+	if (configurationMode === 'password') {
+		return {
+			authentication: 'password',
+			server: normalizeWebUntisServer(server),
+			school,
+			schoolNumber,
+			username,
+			password: requireCredential(
+				credentials,
+				'password',
+				'Password',
+			),
+		};
+	}
 
 	return {
+		authentication: 'secret',
 		server: normalizeWebUntisServer(server),
 		school,
 		schoolNumber,
 		username,
-		secret,
+		secret: requireCredential(
+			credentials,
+			'secret',
+			'Secret Key',
+		),
 	};
 }

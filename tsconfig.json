@@ -4,11 +4,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es2019",
-    "lib": [
-      "es2019",
-      "es2020",
-      "es2022.error"
-    ],
+    "lib": ["es2019", "es2020", "es2022.error"],
     "removeComments": true,
     "useUnknownInCatchVariables": true,
     "forceConsistentCasingInFileNames": true,
@@ -33,9 +29,5 @@
     "src/**/*.ts",
     "src/**/*.json"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "tests"
-  ]
+  "exclude": ["node_modules", "dist", "tests"]
 }

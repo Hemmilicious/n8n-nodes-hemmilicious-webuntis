@@ -1,4 +1,4 @@
-import type { WebUntisSecretAuth } from 'webuntis';
+import type { WebUntis } from 'webuntis';
 
 import type { WebUntisUserInformation } from '../types/WebUntis.types';
 import { toSafeWebUntisError } from '../utils/errors';
@@ -16,12 +16,11 @@ export class WebUntisClient {
 
 	async getUserInformation(): Promise<WebUntisUserInformation> {
 		await this.auth.login();
-
 		return this.auth.getUserInformation();
 	}
 
 	async execute<T>(
-		operation: (client: WebUntisSecretAuth) => Promise<T>,
+		operation: (client: WebUntis) => Promise<T>,
 	): Promise<T> {
 		await this.auth.login();
 
@@ -32,7 +31,8 @@ export class WebUntisClient {
 		try {
 			return await operation(this.auth.getClient());
 		} catch (error) {
-			const sessionStillValid = await this.auth.validateSession();
+			const sessionStillValid =
+				await this.auth.validateSession();
 
 			if (sessionStillValid) {
 				throw toSafeWebUntisError(error, 'request');
@@ -41,9 +41,14 @@ export class WebUntisClient {
 			await this.relogin();
 
 			try {
-				return await operation(this.auth.getClient());
+				return await operation(
+					this.auth.getClient(),
+				);
 			} catch (retryError) {
-				throw toSafeWebUntisError(retryError, 'request');
+				throw toSafeWebUntisError(
+					retryError,
+					'request',
+				);
 			}
 		}
 	}

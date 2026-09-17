@@ -1,20 +1,26 @@
 import { authenticator as Authenticator } from 'otplib';
-import { WebUntisSecretAuth } from 'webuntis';
+import {
+	WebUntis,
+	WebUntisSecretAuth,
+} from 'webuntis';
 
 import type { WebUntisUserInformation } from '../types/WebUntis.types';
 import type { WebUntisResolvedCredentials } from '../utils/credentials';
 import { toSafeWebUntisError } from '../utils/errors';
 
-const WEBUNTIS_IDENTITY = 'n8n-nodes-hemmilicious-webuntis';
+const WEBUNTIS_IDENTITY =
+	'n8n-nodes-hemmilicious-webuntis';
 
-function optionalNumber(value: unknown): number | undefined {
+function optionalNumber(
+	value: unknown,
+): number | undefined {
 	return typeof value === 'number' && Number.isFinite(value)
 		? value
 		: undefined;
 }
 
 export class WebUntisAuth {
-	private client: WebUntisSecretAuth | null = null;
+	private client: WebUntis | null = null;
 
 	private authenticated = false;
 
@@ -22,17 +28,28 @@ export class WebUntisAuth {
 		private readonly credentials: WebUntisResolvedCredentials,
 	) {}
 
-	getClient(): WebUntisSecretAuth {
+	getClient(): WebUntis {
 		if (!this.client) {
-			this.client = new WebUntisSecretAuth(
-				this.credentials.school,
-				this.credentials.username,
-				this.credentials.secret,
-				this.credentials.server,
-				WEBUNTIS_IDENTITY,
-				Authenticator,
-				false,
-			);
+			if (this.credentials.authentication === 'password') {
+				this.client = new WebUntis(
+					this.credentials.school,
+					this.credentials.username,
+					this.credentials.password ?? '',
+					this.credentials.server,
+					WEBUNTIS_IDENTITY,
+					false,
+				);
+			} else {
+				this.client = new WebUntisSecretAuth(
+					this.credentials.school,
+					this.credentials.username,
+					this.credentials.secret ?? '',
+					this.credentials.server,
+					WEBUNTIS_IDENTITY,
+					Authenticator,
+					false,
+				);
+			}
 		}
 
 		return this.client;
@@ -52,7 +69,6 @@ export class WebUntisAuth {
 			return this.getUserInformation();
 		} catch (error) {
 			this.authenticated = false;
-
 			throw toSafeWebUntisError(error, 'login');
 		}
 	}
@@ -66,9 +82,15 @@ export class WebUntisAuth {
 
 		return {
 			username: this.credentials.username,
-			personId: optionalNumber(sessionInformation?.personId),
-			personType: optionalNumber(sessionInformation?.personType),
-			classId: optionalNumber(sessionInformation?.klasseId),
+			personId: optionalNumber(
+				sessionInformation?.personId,
+			),
+			personType: optionalNumber(
+				sessionInformation?.personType,
+			),
+			classId: optionalNumber(
+				sessionInformation?.klasseId,
+			),
 		};
 	}
 

@@ -21,9 +21,11 @@ describe('WebUntis QR parser', () => {
 	});
 
 	it('normalizes a WebUntis server hostname', () => {
-		expect(normalizeWebUntisServer('https://Demo.WebUntis.com/')).toBe(
-			'demo.webuntis.com',
-		);
+		expect(
+			normalizeWebUntisServer(
+				'https://Demo.WebUntis.com/',
+			),
+		).toBe('demo.webuntis.com');
 	});
 
 	it('rejects a QR URL without a secret key', () => {

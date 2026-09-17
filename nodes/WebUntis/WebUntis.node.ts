@@ -4,8 +4,10 @@ import type {
 	ICredentialTestFunctions,
 	IDataObject,
 	IExecuteFunctions,
+	ILoadOptionsFunctions,
 	INodeCredentialTestResult,
 	INodeExecutionData,
+	INodePropertyOptions,
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
@@ -21,6 +23,8 @@ import { normalizeTimetableLesson } from '../../src/services/WebUntisNormalizer'
 import type { WebUntisUserInformation } from '../../src/types/WebUntis.types';
 import { resolveWebUntisCredentials } from '../../src/utils/credentials';
 import { parseWebUntisDateParameter } from '../../src/utils/dates';
+import { extractArray, toDataObject } from '../../src/utils/json';
+import { webUntisProperties } from './descriptions';
 
 function userInformationToJson(
 	information: WebUntisUserInformation,
@@ -50,13 +54,97 @@ function errorMessage(error: unknown): string {
 		: 'WebUntis connection test failed';
 }
 
+function assertDateRange(
+	node: ReturnType<IExecuteFunctions['getNode']>,
+	startDate: Date,
+	endDate: Date,
+	itemIndex: number,
+): void {
+	if (startDate.getTime() > endDate.getTime()) {
+		throw new NodeOperationError(
+			node,
+			'Start Date must not be after End Date',
+			{ itemIndex },
+		);
+	}
+}
+
+function optionName(value: unknown): string {
+	if (typeof value !== 'object' || value === null) {
+		return 'Unknown';
+	}
+
+	const record = value as Record<string, unknown>;
+	const candidates = [
+		record.longName,
+		record.longname,
+		record.displayName,
+		record.foreName && record.name
+			? `${record.foreName} ${record.name}`
+			: undefined,
+		record.name,
+		record.id,
+	];
+
+	for (const candidate of candidates) {
+		if (
+			typeof candidate === 'string' &&
+			candidate.trim()
+		) {
+			return candidate.trim();
+		}
+
+		if (typeof candidate === 'number') {
+			return String(candidate);
+		}
+	}
+
+	return 'Unknown';
+}
+
+function optionsFromRecords(
+	values: unknown[],
+): INodePropertyOptions[] {
+	return values
+		.flatMap((value) => {
+			if (typeof value !== 'object' || value === null) {
+				return [];
+			}
+
+			const id = (value as Record<string, unknown>).id;
+
+			if (typeof id !== 'number') {
+				return [];
+			}
+
+			return [{
+				name: optionName(value),
+				value: id,
+			}];
+		})
+		.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+async function createLoadOptionsProvider(
+	context: ILoadOptionsFunctions,
+): Promise<WebUntisLegacyProvider> {
+	const credentials =
+		await context.getCredentials('webUntisApi');
+	const resolved =
+		resolveWebUntisCredentials(credentials);
+	const auth = new WebUntisAuth(resolved);
+	const client = new WebUntisClient(auth);
+
+	return new WebUntisLegacyProvider(client);
+}
+
 export class WebUntis implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'WebUntis',
 		name: 'webUntis',
 		icon: 'file:Untis.svg',
 		group: ['input'],
-		version: 1,
+		version: 2,
 		usableAsTool: true,
 		subtitle:
 			'={{$parameter["resource"] + ": " + $parameter["operation"]}}',
@@ -73,139 +161,7 @@ export class WebUntis implements INodeType {
 				testedBy: 'webUntisConnectionTest',
 			},
 		],
-		properties: [
-			{
-				displayName: 'Resource',
-				name: 'resource',
-				type: 'options',
-				noDataExpression: true,
-				options: [
-					{
-						name: 'Timetable',
-						value: 'timetable',
-					},
-					{
-						name: 'System',
-						value: 'system',
-					},
-				],
-				default: 'timetable',
-			},
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['timetable'],
-					},
-				},
-				options: [
-					{
-						name: 'Get Today',
-						value: 'getToday',
-						action: 'Get today timetable',
-						description:
-							'Get the timetable for the authenticated user for today',
-					},
-					{
-						name: 'Get Date',
-						value: 'getDate',
-						action: 'Get timetable for a date',
-						description:
-							'Get the timetable for the authenticated user for a specific date',
-					},
-					{
-						name: 'Get Range',
-						value: 'getRange',
-						action: 'Get timetable for a date range',
-						description:
-							'Get the timetable for the authenticated user for a date range',
-					},
-				],
-				default: 'getToday',
-			},
-			{
-				displayName: 'Date',
-				name: 'date',
-				type: 'dateTime',
-				required: true,
-				default: '',
-				description:
-					'Date for which to retrieve the timetable',
-				displayOptions: {
-					show: {
-						resource: ['timetable'],
-						operation: ['getDate'],
-					},
-				},
-			},
-			{
-				displayName: 'Start Date',
-				name: 'startDate',
-				type: 'dateTime',
-				required: true,
-				default: '',
-				description:
-					'First date of the timetable range',
-				displayOptions: {
-					show: {
-						resource: ['timetable'],
-						operation: ['getRange'],
-					},
-				},
-			},
-			{
-				displayName: 'End Date',
-				name: 'endDate',
-				type: 'dateTime',
-				required: true,
-				default: '',
-				description:
-					'Last date of the timetable range',
-				displayOptions: {
-					show: {
-						resource: ['timetable'],
-						operation: ['getRange'],
-					},
-				},
-			},
-			{
-				displayName: 'Return Raw Data',
-				name: 'returnRawData',
-				type: 'boolean',
-				default: false,
-				description:
-					'Whether to include the original WebUntis lesson object in addition to normalized fields',
-				displayOptions: {
-					show: {
-						resource: ['timetable'],
-					},
-				},
-			},
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['system'],
-					},
-				},
-				options: [
-					{
-						name: 'Get User Information',
-						value: 'getUserInformation',
-						action: 'Get user information',
-						description:
-							'Get non-sensitive information about the authenticated WebUntis user',
-					},
-				],
-				default: 'getUserInformation',
-			},
-		],
+		properties: webUntisProperties,
 	};
 
 	methods = {
@@ -220,8 +176,7 @@ export class WebUntis implements INodeType {
 					if (!credential.data) {
 						return {
 							status: 'Error',
-							message:
-								'WebUntis credentials are missing',
+							message: 'WebUntis credentials are missing',
 						};
 					}
 
@@ -229,7 +184,6 @@ export class WebUntis implements INodeType {
 						resolveWebUntisCredentials(
 							credential.data,
 						);
-
 					const auth = new WebUntisAuth(
 						resolvedCredentials,
 					);
@@ -254,24 +208,105 @@ export class WebUntis implements INodeType {
 				}
 			},
 		},
+		loadOptions: {
+			async getTimetableElements(
+				this: ILoadOptionsFunctions,
+			): Promise<INodePropertyOptions[]> {
+				const provider =
+					await createLoadOptionsProvider(this);
+
+				try {
+					await provider.connect();
+					const elementType = Number(
+						this.getCurrentNodeParameter(
+							'elementType',
+						),
+					);
+
+					let values: unknown[];
+
+					switch (elementType) {
+						case 1:
+							values = await provider.getClasses();
+							break;
+						case 2:
+							values = await provider.getTeachers();
+							break;
+						case 3:
+							values = await provider.getSubjects();
+							break;
+						case 4:
+							values = await provider.getRooms();
+							break;
+						case 5:
+							values = await provider.getStudents();
+							break;
+						default:
+							values = [];
+					}
+
+					return optionsFromRecords(values);
+				} finally {
+					await provider.disconnect();
+				}
+			},
+
+			async getClassesForExam(
+				this: ILoadOptionsFunctions,
+			): Promise<INodePropertyOptions[]> {
+				const provider =
+					await createLoadOptionsProvider(this);
+
+				try {
+					await provider.connect();
+					const values = await provider.getClasses();
+
+					return [
+						{
+							name: 'All Classes',
+							value: -1,
+						},
+						...optionsFromRecords(values),
+					];
+				} finally {
+					await provider.disconnect();
+				}
+			},
+		},
 	};
 
 	async execute(
 		this: IExecuteFunctions,
 	): Promise<INodeExecutionData[][]> {
 		const inputItems = this.getInputData();
-
 		const credentials =
 			await this.getCredentials('webUntisApi');
-
 		const resolvedCredentials =
 			resolveWebUntisCredentials(credentials);
-
 		const auth = new WebUntisAuth(resolvedCredentials);
 		const client = new WebUntisClient(auth);
 		const provider = new WebUntisLegacyProvider(client);
-
 		const outputItems: INodeExecutionData[] = [];
+
+		const pushValue = (
+			value: unknown,
+			itemIndex: number,
+		): void => {
+			if (Array.isArray(value)) {
+				for (const entry of value) {
+					outputItems.push({
+						json: toDataObject(entry),
+						pairedItem: { item: itemIndex },
+					});
+				}
+				return;
+			}
+
+			outputItems.push({
+				json: toDataObject(value),
+				pairedItem: { item: itemIndex },
+			});
+		};
 
 		try {
 			await provider.connect();
@@ -291,131 +326,641 @@ export class WebUntis implements INodeType {
 					itemIndex,
 				) as string;
 
-				if (
-					resource === 'system' &&
-					operation === 'getUserInformation'
-				) {
-					const information =
-						await provider.getUserInformation();
-
-					outputItems.push({
-						json: userInformationToJson(
-							information,
-						),
-						pairedItem: {
-							item: itemIndex,
-						},
-					});
+				if (resource === 'system') {
+					if (operation === 'getUserInformation') {
+						pushValue(
+							userInformationToJson(
+								await provider.getUserInformation(),
+							),
+							itemIndex,
+						);
+					} else if (
+						operation === 'getLatestImportTime'
+					) {
+						pushValue(
+							{
+								latestImportTime:
+									await provider.getLatestImportTime(),
+							},
+							itemIndex,
+						);
+					} else if (
+						operation === 'getStatusData'
+					) {
+						pushValue(
+							await provider.getStatusData(),
+							itemIndex,
+						);
+					} else if (
+						operation === 'validateSession'
+					) {
+						pushValue(
+							{
+								valid:
+									await provider.validateSession(),
+							},
+							itemIndex,
+						);
+					} else {
+						throw new NodeOperationError(
+							this.getNode(),
+							'Unsupported system operation',
+							{ itemIndex },
+						);
+					}
 
 					continue;
 				}
 
-				if (resource !== 'timetable') {
-					throw new NodeOperationError(
-						this.getNode(),
-						'Unsupported WebUntis resource',
-						{
+				if (resource === 'timetable') {
+					const returnRawData =
+						this.getNodeParameter(
+							'returnRawData',
 							itemIndex,
-						},
-					);
+							false,
+						) as boolean;
+
+					let lessons: unknown[];
+					let weekly = false;
+
+					if (operation === 'ownToday') {
+						lessons =
+							await provider.getOwnTimetableForToday();
+					} else if (operation === 'ownDate') {
+						const date =
+							parseWebUntisDateParameter(
+								this.getNodeParameter(
+									'date',
+									itemIndex,
+								) as string,
+								'Date',
+							);
+						lessons =
+							await provider.getOwnTimetableForDate(
+								date,
+							);
+					} else if (operation === 'ownRange') {
+						const startDate =
+							parseWebUntisDateParameter(
+								this.getNodeParameter(
+									'startDate',
+									itemIndex,
+								) as string,
+								'Start Date',
+							);
+						const endDate =
+							parseWebUntisDateParameter(
+								this.getNodeParameter(
+									'endDate',
+									itemIndex,
+								) as string,
+								'End Date',
+							);
+
+						assertDateRange(
+							this.getNode(),
+							startDate,
+							endDate,
+							itemIndex,
+						);
+
+						lessons =
+							await provider.getOwnTimetableForRange(
+								startDate,
+								endDate,
+							);
+					} else if (operation === 'ownWeek') {
+						const weekDate =
+							parseWebUntisDateParameter(
+								this.getNodeParameter(
+									'weekDate',
+									itemIndex,
+								) as string,
+								'Week Date',
+							);
+						const formatId = this.getNodeParameter(
+							'formatId',
+							itemIndex,
+							1,
+						) as number;
+
+						weekly = true;
+						lessons =
+							await provider.getOwnTimetableForWeek(
+								weekDate,
+								formatId,
+							);
+					} else if (
+						operation === 'ownClassToday'
+					) {
+						lessons =
+							await provider.getOwnClassTimetableForToday();
+					} else if (
+						operation === 'ownClassDate'
+					) {
+						const date =
+							parseWebUntisDateParameter(
+								this.getNodeParameter(
+									'date',
+									itemIndex,
+								) as string,
+								'Date',
+							);
+						lessons =
+							await provider.getOwnClassTimetableForDate(
+								date,
+							);
+					} else if (
+						operation === 'ownClassRange'
+					) {
+						const startDate =
+							parseWebUntisDateParameter(
+								this.getNodeParameter(
+									'startDate',
+									itemIndex,
+								) as string,
+								'Start Date',
+							);
+						const endDate =
+							parseWebUntisDateParameter(
+								this.getNodeParameter(
+									'endDate',
+									itemIndex,
+								) as string,
+								'End Date',
+							);
+
+						assertDateRange(
+							this.getNode(),
+							startDate,
+							endDate,
+							itemIndex,
+						);
+
+						lessons =
+							await provider.getOwnClassTimetableForRange(
+								startDate,
+								endDate,
+							);
+					} else {
+						const elementId = Number(
+							this.getNodeParameter(
+								'elementId',
+								itemIndex,
+							),
+						);
+						const elementType = Number(
+							this.getNodeParameter(
+								'elementType',
+								itemIndex,
+							),
+						);
+
+						if (operation === 'elementToday') {
+							lessons =
+								await provider.getTimetableForToday(
+									elementId,
+									elementType,
+								);
+						} else if (
+							operation === 'elementDate'
+						) {
+							const date =
+								parseWebUntisDateParameter(
+									this.getNodeParameter(
+										'date',
+										itemIndex,
+									) as string,
+									'Date',
+								);
+							lessons =
+								await provider.getTimetableForDate(
+									date,
+									elementId,
+									elementType,
+								);
+						} else if (
+							operation === 'elementRange'
+						) {
+							const startDate =
+								parseWebUntisDateParameter(
+									this.getNodeParameter(
+										'startDate',
+										itemIndex,
+									) as string,
+									'Start Date',
+								);
+							const endDate =
+								parseWebUntisDateParameter(
+									this.getNodeParameter(
+										'endDate',
+										itemIndex,
+									) as string,
+									'End Date',
+								);
+
+							assertDateRange(
+								this.getNode(),
+								startDate,
+								endDate,
+								itemIndex,
+							);
+
+							lessons =
+								await provider.getTimetableForRange(
+									startDate,
+									endDate,
+									elementId,
+									elementType,
+								);
+						} else if (
+							operation === 'elementWeek'
+						) {
+							const weekDate =
+								parseWebUntisDateParameter(
+									this.getNodeParameter(
+										'weekDate',
+										itemIndex,
+									) as string,
+									'Week Date',
+								);
+							const formatId =
+								this.getNodeParameter(
+									'formatId',
+									itemIndex,
+									1,
+								) as number;
+
+							weekly = true;
+							lessons =
+								await provider.getTimetableForWeek(
+									weekDate,
+									elementId,
+									elementType,
+									formatId,
+								);
+						} else {
+							throw new NodeOperationError(
+								this.getNode(),
+								'Unsupported timetable operation',
+								{ itemIndex },
+							);
+						}
+					}
+
+					if (weekly) {
+						pushValue(lessons, itemIndex);
+					} else {
+						for (const lesson of lessons) {
+							pushValue(
+								normalizeTimetableLesson(
+									lesson,
+									returnRawData,
+								),
+								itemIndex,
+							);
+						}
+					}
+
+					continue;
 				}
 
-				const returnRawData =
-					this.getNodeParameter(
-						'returnRawData',
+				if (resource === 'classes') {
+					const schoolYearId =
+						this.getNodeParameter(
+							'schoolYearId',
+							itemIndex,
+							0,
+						) as number;
+
+					pushValue(
+						await provider.getClasses(
+							schoolYearId > 0
+								? schoolYearId
+								: undefined,
+						),
 						itemIndex,
-						false,
-					) as boolean;
+					);
+					continue;
+				}
 
-				let lessons: unknown[];
+				if (resource === 'teachers') {
+					pushValue(
+						await provider.getTeachers(),
+						itemIndex,
+					);
+					continue;
+				}
 
-				if (operation === 'getToday') {
-					lessons =
-						await provider.getOwnTimetableForToday();
-				} else if (operation === 'getDate') {
-					const dateValue =
-						this.getNodeParameter(
-							'date',
+				if (resource === 'students') {
+					pushValue(
+						await provider.getStudents(),
+						itemIndex,
+					);
+					continue;
+				}
+
+				if (resource === 'subjects') {
+					pushValue(
+						await provider.getSubjects(),
+						itemIndex,
+					);
+					continue;
+				}
+
+				if (resource === 'rooms') {
+					pushValue(
+						await provider.getRooms(),
+						itemIndex,
+					);
+					continue;
+				}
+
+				if (resource === 'departments') {
+					pushValue(
+						await provider.getDepartments(),
+						itemIndex,
+					);
+					continue;
+				}
+
+				if (resource === 'schoolYears') {
+					if (operation === 'getMany') {
+						pushValue(
+							await provider.getSchoolYears(),
 							itemIndex,
-						) as string;
-
-					const date =
-						parseWebUntisDateParameter(
-							dateValue,
-							'Date',
 						);
-
-					lessons =
-						await provider.getOwnTimetableForDate(
-							date,
-						);
-				} else if (operation === 'getRange') {
-					const startValue =
-						this.getNodeParameter(
-							'startDate',
-							itemIndex,
-						) as string;
-
-					const endValue =
-						this.getNodeParameter(
-							'endDate',
-							itemIndex,
-						) as string;
-
-					const startDate =
-						parseWebUntisDateParameter(
-							startValue,
-							'Start Date',
-						);
-
-					const endDate =
-						parseWebUntisDateParameter(
-							endValue,
-							'End Date',
-						);
-
-					if (
-						startDate.getTime() >
-						endDate.getTime()
+					} else if (
+						operation === 'getCurrent'
 					) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'Start Date must not be after End Date',
-							{
-								itemIndex,
-							},
+						pushValue(
+							await provider.getCurrentSchoolYear(),
+							itemIndex,
+						);
+					} else if (
+						operation === 'getLatest'
+					) {
+						pushValue(
+							await provider.getLatestSchoolYear(),
+							itemIndex,
 						);
 					}
 
-					lessons =
-						await provider.getOwnTimetableForRange(
+					continue;
+				}
+
+				if (resource === 'holidays') {
+					pushValue(
+						await provider.getHolidays(),
+						itemIndex,
+					);
+					continue;
+				}
+
+				if (resource === 'timeGrid') {
+					pushValue(
+						await provider.getTimeGrid(),
+						itemIndex,
+					);
+					continue;
+				}
+
+				if (resource === 'exams') {
+					const startDate =
+						parseWebUntisDateParameter(
+							this.getNodeParameter(
+								'startDate',
+								itemIndex,
+							) as string,
+							'Start Date',
+						);
+					const endDate =
+						parseWebUntisDateParameter(
+							this.getNodeParameter(
+								'endDate',
+								itemIndex,
+							) as string,
+							'End Date',
+						);
+
+					assertDateRange(
+						this.getNode(),
+						startDate,
+						endDate,
+						itemIndex,
+					);
+
+					const classId = Number(
+						this.getNodeParameter(
+							'classId',
+							itemIndex,
+							-1,
+						),
+					);
+					const withGrades =
+						this.getNodeParameter(
+							'withGrades',
+							itemIndex,
+							false,
+						) as boolean;
+
+					pushValue(
+						await provider.getExams(
 							startDate,
 							endDate,
-						);
-				} else {
-					throw new NodeOperationError(
-						this.getNode(),
-						'Unsupported timetable operation',
-						{
-							itemIndex,
-						},
+							classId,
+							withGrades,
+						),
+						itemIndex,
 					);
+					continue;
 				}
 
-				for (const lesson of lessons) {
-					const normalized =
-						normalizeTimetableLesson(
-							lesson,
-							returnRawData,
+				if (resource === 'homework') {
+					const startDate =
+						parseWebUntisDateParameter(
+							this.getNodeParameter(
+								'startDate',
+								itemIndex,
+							) as string,
+							'Start Date',
+						);
+					const endDate =
+						parseWebUntisDateParameter(
+							this.getNodeParameter(
+								'endDate',
+								itemIndex,
+							) as string,
+							'End Date',
 						);
 
-					outputItems.push({
-						json: normalized as unknown as IDataObject,
-						pairedItem: {
-							item: itemIndex,
-						},
-					});
+					assertDateRange(
+						this.getNode(),
+						startDate,
+						endDate,
+						itemIndex,
+					);
+
+					if (operation === 'getWithLessons') {
+						pushValue(
+							await provider.getHomeworkAndLessons(
+								startDate,
+								endDate,
+							),
+							itemIndex,
+						);
+					} else {
+						const data =
+							await provider.getHomeworks(
+								startDate,
+								endDate,
+							);
+						const homeworks =
+							extractArray(data, 'homeworks');
+
+						pushValue(
+							homeworks.length > 0
+								? homeworks
+								: data,
+							itemIndex,
+						);
+					}
+
+					continue;
 				}
+
+				if (resource === 'absences') {
+					const startDate =
+						parseWebUntisDateParameter(
+							this.getNodeParameter(
+								'startDate',
+								itemIndex,
+							) as string,
+							'Start Date',
+						);
+					const endDate =
+						parseWebUntisDateParameter(
+							this.getNodeParameter(
+								'endDate',
+								itemIndex,
+							) as string,
+							'End Date',
+						);
+
+					assertDateRange(
+						this.getNode(),
+						startDate,
+						endDate,
+						itemIndex,
+					);
+
+					const excuseStatusId =
+						this.getNodeParameter(
+							'excuseStatusId',
+							itemIndex,
+							-1,
+						) as number;
+
+					if (operation === 'getPdf') {
+						const url =
+							await provider.getAbsencePdf(
+								startDate,
+								endDate,
+								excuseStatusId,
+								this.getNodeParameter(
+									'lateness',
+									itemIndex,
+									true,
+								) as boolean,
+								this.getNodeParameter(
+									'includeAbsences',
+									itemIndex,
+									true,
+								) as boolean,
+								this.getNodeParameter(
+									'excuseGroup',
+									itemIndex,
+									2,
+								) as number,
+							);
+
+						pushValue(
+							{
+								url,
+								sensitive:
+									true,
+								note:
+									'Treat this ephemeral WebUntis report URL as sensitive.',
+							},
+							itemIndex,
+						);
+					} else {
+						pushValue(
+							await provider.getAbsences(
+								startDate,
+								endDate,
+								excuseStatusId,
+							),
+							itemIndex,
+						);
+					}
+
+					continue;
+				}
+
+				if (resource === 'inbox') {
+					const data = await provider.getInbox();
+					const messages =
+						extractArray(
+							data,
+							'incomingMessages',
+						);
+
+					pushValue(
+						messages.length > 0
+							? messages
+							: data,
+						itemIndex,
+					);
+					continue;
+				}
+
+				if (resource === 'news') {
+					const date =
+						parseWebUntisDateParameter(
+							this.getNodeParameter(
+								'date',
+								itemIndex,
+							) as string,
+							'Date',
+						);
+					const data = await provider.getNews(date);
+
+					if (operation === 'getMessages') {
+						const messages =
+							extractArray(
+								data,
+								'messagesOfDay',
+							);
+
+						pushValue(
+							messages.length > 0
+								? messages
+								: [],
+							itemIndex,
+						);
+					} else {
+						pushValue(data, itemIndex);
+					}
+
+					continue;
+				}
+
+				throw new NodeOperationError(
+					this.getNode(),
+					`Unsupported WebUntis resource "${resource}"`,
+					{ itemIndex },
+				);
 			}
 
 			return [outputItems];

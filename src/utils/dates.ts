@@ -3,7 +3,6 @@ export function parseWebUntisDateParameter(
 	fieldName: string,
 ): Date {
 	const input = value.trim();
-
 	const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(input);
 
 	if (!match) {
@@ -33,7 +32,7 @@ export function untisDateToIsoDate(value: number): string {
 	const input = String(value).padStart(8, '0');
 
 	if (!/^\d{8}$/.test(input)) {
-		throw new Error('Invalid WebUntis lesson date');
+		throw new Error('Invalid WebUntis date');
 	}
 
 	const year = input.slice(0, 4);
@@ -45,7 +44,7 @@ export function untisDateToIsoDate(value: number): string {
 
 export function untisTimeToIsoTime(value: number): string {
 	if (!Number.isInteger(value) || value < 0 || value > 2359) {
-		throw new Error('Invalid WebUntis lesson time');
+		throw new Error('Invalid WebUntis time');
 	}
 
 	const input = String(value).padStart(4, '0');
@@ -53,8 +52,15 @@ export function untisTimeToIsoTime(value: number): string {
 	const minutes = Number(input.slice(2, 4));
 
 	if (hours > 23 || minutes > 59) {
-		throw new Error('Invalid WebUntis lesson time');
+		throw new Error('Invalid WebUntis time');
 	}
 
 	return `${input.slice(0, 2)}:${input.slice(2, 4)}`;
+}
+
+export function dateOffsetFromToday(days: number): Date {
+	const date = new Date();
+	date.setHours(12, 0, 0, 0);
+	date.setDate(date.getDate() + days);
+	return date;
 }
