@@ -1,0 +1,67 @@
+{
+  "name": "n8n-nodes-hemmilicious-webuntis",
+  "version": "0.1.0",
+  "description": "n8n community node for WebUntis with Secret/QR authentication and timetable access",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "webuntis",
+    "untis",
+    "timetable"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "n8n-node build",
+    "dev": "n8n-node dev",
+    "lint": "n8n-node lint",
+    "lint:fix": "n8n-node lint --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "release": "n8n-node release",
+    "prepublishOnly": "n8n-node prerelease"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "strict": false,
+    "credentials": [
+      "dist/credentials/WebUntisApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/WebUntis/WebUntis.node.js"
+    ]
+  },
+  "dependencies": {
+    "otplib": "12.0.1",
+    "webuntis": "2.2.1"
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "0.48.4",
+    "eslint": "9.39.4",
+    "n8n-workflow": "2.38.1",
+    "prettier": "3.8.3",
+    "typescript": "5.9.3",
+    "vitest": "5.0.1"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "allowScripts": {
+    "isolated-vm@7.0.1": true,
+    "ssh2@1.15.0": true,
+    "unrs-resolver@1.12.2": true,
+    "fsevents@2.3.3": true,
+    "cpu-features": false,
+    "eslint-plugin-n8n-nodes-base": false
+  },
+  "author": {
+    "name": "Michael Hemmersbach",
+    "email": "spam@familie-hemmersbach.com"
+  },
+  "homepage": "https://www.npmjs.com/package/n8n-nodes-hemmilicious-webuntis"
+}
