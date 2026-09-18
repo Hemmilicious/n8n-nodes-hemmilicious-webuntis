@@ -1,3 +1,8 @@
+/*
+ * Die sichtbaren Ereignisnamen sind bewusst deutsch formuliert.
+ */
+/* eslint-disable n8n-nodes-base/node-param-display-name-miscased */
+
 import type {
 	ICredentialDataDecryptedObject,
 	ICredentialsDecrypted,
@@ -80,12 +85,12 @@ export class WebUntisTrigger implements INodeType {
 						value: 'absencesChanged',
 					},
 					{
-						name: 'Klassenarbeiten / Prüfungen geändert',
-						value: 'examsChanged',
-					},
-					{
 						name: 'Hausaufgaben geändert',
 						value: 'homeworkChanged',
+					},
+					{
+						name: 'Klassenarbeiten / Prüfungen geändert',
+						value: 'examsChanged',
 					},
 					{
 						name: 'Posteingang geändert',
