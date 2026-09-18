@@ -16,27 +16,27 @@ export class WebUntisApi implements ICredentialType {
 
 	properties: INodeProperties[] = [
 		{
-			displayName: 'Authentication',
+			displayName: 'Anmeldung',
 			name: 'configurationMode',
 			type: 'options',
 			options: [
 				{
-					name: 'Secret Key (Manual)',
+					name: 'Secret Key (manuell)',
 					value: 'manual',
 					description:
-						'Use the WebUntis mobile/QR secret key. This keeps compatibility with credentials created with version 0.1.0.',
+						'Verwendet den Secret Key aus der WebUntis-Mobil-/QR-Konfiguration und bleibt mit älteren Zugangsdaten kompatibel.',
 				},
 				{
-					name: 'Username + Password',
+					name: 'Benutzername + Passwort',
 					value: 'password',
 					description:
-						'Use the normal WebUntis username and password login',
+						'Verwendet die normale WebUntis-Anmeldung mit Benutzername und Passwort',
 				},
 				{
-					name: 'Untis QR URL',
+					name: 'Untis QR-URL',
 					value: 'qrUrl',
 					description:
-						'Use the complete untis://setschool?... value from WebUntis',
+						'Verwendet den vollständigen untis://setschool?... Wert aus WebUntis',
 				},
 			],
 			default: 'manual',
@@ -49,7 +49,7 @@ export class WebUntisApi implements ICredentialType {
 			required: true,
 			placeholder: 'demo.webuntis.com',
 			description:
-				'WebUntis server hostname without https://',
+				'WebUntis-Servername ohne https://',
 			displayOptions: {
 				show: {
 					configurationMode: ['manual', 'password'],
@@ -57,14 +57,14 @@ export class WebUntisApi implements ICredentialType {
 			},
 		},
 		{
-			displayName: 'School',
+			displayName: 'Schule',
 			name: 'school',
 			type: 'string',
 			default: '',
 			required: true,
 			placeholder: 'demo-school',
 			description:
-				'WebUntis school identifier/login name',
+				'WebUntis-Schulkennung bzw. Anmeldename der Schule',
 			displayOptions: {
 				show: {
 					configurationMode: ['manual', 'password'],
@@ -72,14 +72,14 @@ export class WebUntisApi implements ICredentialType {
 			},
 		},
 		{
-			displayName: 'School Number',
+			displayName: 'Schulnummer',
 			name: 'schoolNumber',
 			type: 'string',
 			default: '',
 			required: false,
 			placeholder: '1234567',
 			description:
-				'Optional school number from the mobile configuration. It is stored for completeness but is not required by the webuntis login constructor.',
+				'Optionale Schulnummer aus der mobilen Konfiguration. Sie wird vollständig gespeichert, ist für die Anmeldung aber nicht zwingend erforderlich.',
 			displayOptions: {
 				show: {
 					configurationMode: ['manual'],
@@ -87,7 +87,7 @@ export class WebUntisApi implements ICredentialType {
 			},
 		},
 		{
-			displayName: 'Username',
+			displayName: 'Benutzername',
 			name: 'username',
 			type: 'string',
 			default: '',
@@ -108,7 +108,7 @@ export class WebUntisApi implements ICredentialType {
 			required: true,
 			placeholder: 'FAKE_SECRET',
 			description:
-				'Secret key from the WebUntis mobile/QR setup. This is not the normal WebUntis password.',
+				'Secret Key aus der WebUntis-Mobil-/QR-Einrichtung. Das ist nicht das normale WebUntis-Passwort.',
 			displayOptions: {
 				show: {
 					configurationMode: ['manual'],
@@ -116,14 +116,14 @@ export class WebUntisApi implements ICredentialType {
 			},
 		},
 		{
-			displayName: 'Password',
+			displayName: 'Passwort',
 			name: 'password',
 			type: 'string',
 			typeOptions: { password: true },
 			default: '',
 			required: true,
 			description:
-				'Normal WebUntis password. Stored only in the n8n Credential system.',
+				'Normales WebUntis-Passwort. Es wird ausschließlich im n8n-Credential-System gespeichert.',
 			displayOptions: {
 				show: {
 					configurationMode: ['password'],
@@ -131,7 +131,7 @@ export class WebUntisApi implements ICredentialType {
 			},
 		},
 		{
-			displayName: 'Untis QR URL',
+			displayName: 'Untis QR-URL',
 			name: 'qrUrl',
 			type: 'string',
 			typeOptions: { password: true },
@@ -140,7 +140,7 @@ export class WebUntisApi implements ICredentialType {
 			placeholder:
 				'untis://setschool?url=...&school=...&user=...&key=...&schoolNumber=...',
 			description:
-				'Sensitive mobile configuration value containing the secret authentication key',
+				'Sensibler Wert aus der mobilen Konfiguration, der den geheimen Authentifizierungsschlüssel enthält',
 			displayOptions: {
 				show: {
 					configurationMode: ['qrUrl'],
