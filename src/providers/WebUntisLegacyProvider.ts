@@ -300,16 +300,37 @@ export class WebUntisLegacyProvider implements WebUntisProvider {
 		startDate: Date,
 		endDate: Date,
 		excuseStatusId = -1,
+		studentId?: number,
 	): Promise<unknown> {
-		return await this.client.execute(
-			async (client) =>
-				await client.getAbsentLesson(
+		return await this.client.execute(async (client) => {
+			const sessionInformation = client.sessionInformation;
+			const originalPersonId = sessionInformation?.personId;
+
+			if (studentId !== undefined && studentId > 0) {
+				if (!sessionInformation) {
+					throw new Error(
+						'WebUntis-Sitzungsinformationen sind nicht verfügbar.',
+					);
+				}
+				sessionInformation.personId = studentId;
+			}
+
+			try {
+				return await client.getAbsentLesson(
 					startDate,
 					endDate,
 					excuseStatusId,
 					false,
-				),
-		);
+				);
+			} finally {
+				if (
+					sessionInformation &&
+					originalPersonId !== undefined
+				) {
+					sessionInformation.personId = originalPersonId;
+				}
+			}
+		});
 	}
 
 	async getAbsencePdf(
@@ -319,10 +340,23 @@ export class WebUntisLegacyProvider implements WebUntisProvider {
 		lateness = true,
 		absences = true,
 		excuseGroup = 2,
+		studentId?: number,
 	): Promise<string> {
-		return await this.client.execute(
-			async (client) =>
-				await client.getPdfOfAbsentLesson(
+		return await this.client.execute(async (client) => {
+			const sessionInformation = client.sessionInformation;
+			const originalPersonId = sessionInformation?.personId;
+
+			if (studentId !== undefined && studentId > 0) {
+				if (!sessionInformation) {
+					throw new Error(
+						'WebUntis-Sitzungsinformationen sind nicht verfügbar.',
+					);
+				}
+				sessionInformation.personId = studentId;
+			}
+
+			try {
+				return await client.getPdfOfAbsentLesson(
 					startDate,
 					endDate,
 					false,
@@ -330,8 +364,16 @@ export class WebUntisLegacyProvider implements WebUntisProvider {
 					lateness,
 					absences,
 					excuseGroup,
-				),
-		);
+				);
+			} finally {
+				if (
+					sessionInformation &&
+					originalPersonId !== undefined
+				) {
+					sessionInformation.personId = originalPersonId;
+				}
+			}
+		});
 	}
 
 	async getInbox(): Promise<unknown> {

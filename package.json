@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-hemmilicious-webuntis",
-  "version": "0.2.0",
-  "description": "n8n community nodes for WebUntis with Secret/QR authentication, comprehensive read actions, and polling triggers",
+  "version": "0.3.0",
+  "description": "n8n Community Nodes für WebUntis als Basis eines automatisierten Schul- & Familien-OS",
   "keywords": [
     "n8n-community-node-package",
     "n8n",
@@ -11,7 +11,12 @@
     "homework",
     "exams",
     "absences",
-    "school"
+    "school",
+    "family-os",
+    "school-os",
+    "automation",
+    "parent",
+    "student"
   ],
   "license": "MIT",
   "scripts": {
@@ -47,6 +52,7 @@
     "eslint": "9.39.4",
     "n8n-workflow": "2.38.1",
     "prettier": "3.8.3",
+    "release-it": "^20.2.0",
     "typescript": "5.9.3",
     "vitest": "5.0.1"
   },
