@@ -15,13 +15,11 @@
     "preserveConstEnums": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "incremental": true,
     "declaration": true,
     "sourceMap": true,
     "skipLibCheck": true,
     "rootDir": ".",
-    "outDir": "./dist",
-    "tsBuildInfoFile": "./tsconfig.tsbuildinfo"
+    "outDir": "./dist"
   },
   "include": [
     "credentials/**/*.ts",
