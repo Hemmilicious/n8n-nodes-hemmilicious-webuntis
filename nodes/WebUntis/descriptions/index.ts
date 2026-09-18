@@ -4,14 +4,14 @@ const simpleOperation = (
 	resource: string,
 	action: string,
 ): INodeProperties => ({
-	displayName: 'Operation',
+	displayName: 'Aktion',
 	name: 'operation',
 	type: 'options',
 	noDataExpression: true,
 	displayOptions: { show: { resource: [resource] } },
 	options: [
 		{
-			name: 'Get Many',
+			name: 'Alle abrufen',
 			value: 'getMany',
 			action,
 		},
@@ -21,98 +21,98 @@ const simpleOperation = (
 
 export const webUntisProperties: INodeProperties[] = [
 	{
-		displayName: 'Resource',
+		displayName: 'Bereich',
 		name: 'resource',
 		type: 'options',
 		noDataExpression: true,
 		options: [
-			{ name: 'Absence', value: 'absences' },
-			{ name: 'Class', value: 'classes' },
-			{ name: 'Department', value: 'departments' },
-			{ name: 'Exam', value: 'exams' },
-			{ name: 'Holiday', value: 'holidays' },
-			{ name: 'Homework', value: 'homework' },
-			{ name: 'Inbox', value: 'inbox' },
-			{ name: 'News', value: 'news' },
-			{ name: 'Room', value: 'rooms' },
-			{ name: 'School Year', value: 'schoolYears' },
-			{ name: 'Student', value: 'students' },
-			{ name: 'Subject', value: 'subjects' },
+			{ name: 'Abwesenheit', value: 'absences' },
+			{ name: 'Klasse', value: 'classes' },
+			{ name: 'Abteilung', value: 'departments' },
+			{ name: 'Klassenarbeit / Prüfung', value: 'exams' },
+			{ name: 'Ferien / Feiertage', value: 'holidays' },
+			{ name: 'Hausaufgaben', value: 'homework' },
+			{ name: 'Posteingang', value: 'inbox' },
+			{ name: 'Neuigkeiten', value: 'news' },
+			{ name: 'Raum', value: 'rooms' },
+			{ name: 'Schuljahr', value: 'schoolYears' },
+			{ name: 'Schüler/in', value: 'students' },
+			{ name: 'Fach', value: 'subjects' },
 			{ name: 'System', value: 'system' },
-			{ name: 'Teacher', value: 'teachers' },
-			{ name: 'Time Grid', value: 'timeGrid' },
-			{ name: 'Timetable', value: 'timetable' },
+			{ name: 'Lehrkraft', value: 'teachers' },
+			{ name: 'Zeitraster', value: 'timeGrid' },
+			{ name: 'Stundenplan', value: 'timetable' },
 		],
 		default: 'timetable',
 	},
 
 	{
-		displayName: 'Operation',
+		displayName: 'Aktion',
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['timetable'] } },
 		options: [
 			{
-				name: 'Get Element for Date',
+				name: 'Element für Datum abrufen',
 				value: 'elementDate',
-				action: 'Get an element timetable for a date',
+				action: 'Stundenplan eines Elements für ein Datum abrufen',
 			},
 			{
-				name: 'Get Element for Range',
+				name: 'Element für Zeitraum abrufen',
 				value: 'elementRange',
-				action: 'Get an element timetable for a date range',
+				action: 'Stundenplan eines Elements für einen Zeitraum abrufen',
 			},
 			{
-				name: 'Get Element for Week',
+				name: 'Element für Woche abrufen',
 				value: 'elementWeek',
-				action: 'Get an element timetable for a week',
+				action: 'Stundenplan eines Elements für eine Woche abrufen',
 			},
 			{
-				name: 'Get Element Today',
+				name: 'Element für heute abrufen',
 				value: 'elementToday',
-				action: 'Get an element timetable today',
+				action: 'Stundenplan eines Elements für heute abrufen',
 			},
 			{
-				name: 'Get My Class for Date',
+				name: 'Meine Klasse für Datum abrufen',
 				value: 'ownClassDate',
-				action: 'Get my class timetable for a date',
+				action: 'Stundenplan meiner Klasse für ein Datum abrufen',
 			},
 			{
-				name: 'Get My Class for Range',
+				name: 'Meine Klasse für Zeitraum abrufen',
 				value: 'ownClassRange',
-				action: 'Get my class timetable for a date range',
+				action: 'Stundenplan meiner Klasse für einen Zeitraum abrufen',
 			},
 			{
-				name: 'Get My Class Today',
+				name: 'Meine Klasse heute abrufen',
 				value: 'ownClassToday',
-				action: 'Get my class timetable today',
+				action: 'Stundenplan meiner Klasse für heute abrufen',
 			},
 			{
-				name: 'Get My Timetable for Date',
+				name: 'Meinen Stundenplan für Datum abrufen',
 				value: 'ownDate',
-				action: 'Get my timetable for a date',
+				action: 'Meinen Stundenplan für ein Datum abrufen',
 			},
 			{
-				name: 'Get My Timetable for Range',
+				name: 'Meinen Stundenplan für Zeitraum abrufen',
 				value: 'ownRange',
-				action: 'Get my timetable for a date range',
+				action: 'Meinen Stundenplan für einen Zeitraum abrufen',
 			},
 			{
-				name: 'Get My Timetable for Week',
+				name: 'Meinen Stundenplan für Woche abrufen',
 				value: 'ownWeek',
-				action: 'Get my timetable for a week',
+				action: 'Meinen Stundenplan für eine Woche abrufen',
 			},
 			{
-				name: 'Get My Timetable Today',
+				name: 'Meinen Stundenplan heute abrufen',
 				value: 'ownToday',
-				action: 'Get my timetable today',
+				action: 'Meinen Stundenplan für heute abrufen',
 			},
 		],
 		default: 'ownToday',
 	},
 	{
-		displayName: 'Date',
+		displayName: 'Datum',
 		name: 'date',
 		type: 'dateTime',
 		required: true,
@@ -129,7 +129,7 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Start Date',
+		displayName: 'Startdatum',
 		name: 'startDate',
 		type: 'dateTime',
 		required: true,
@@ -146,7 +146,7 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'End Date',
+		displayName: 'Enddatum',
 		name: 'endDate',
 		type: 'dateTime',
 		required: true,
@@ -163,13 +163,13 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Week Date',
+		displayName: 'Datum innerhalb der Woche',
 		name: 'weekDate',
 		type: 'dateTime',
 		required: true,
 		default: '',
 		description:
-			'Any date inside the week to retrieve',
+			'Ein beliebiges Datum innerhalb der abzurufenden Woche',
 		displayOptions: {
 			show: {
 				resource: ['timetable'],
@@ -178,15 +178,15 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Element Type',
+		displayName: 'Elementtyp',
 		name: 'elementType',
 		type: 'options',
 		options: [
-			{ name: 'Class', value: 1 },
-			{ name: 'Teacher', value: 2 },
-			{ name: 'Subject', value: 3 },
-			{ name: 'Room', value: 4 },
-			{ name: 'Student', value: 5 },
+			{ name: 'Klasse', value: 1 },
+			{ name: 'Lehrkraft', value: 2 },
+			{ name: 'Fach', value: 3 },
+			{ name: 'Raum', value: 4 },
+			{ name: 'Schüler/in', value: 5 },
 		],
 		default: 1,
 		displayOptions: {
@@ -202,7 +202,7 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Element Name or ID',
+		displayName: 'Elementname oder ID',
 		name: 'elementId',
 		type: 'options',
 		typeOptions: {
@@ -210,7 +210,8 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 		default: '',
 		required: true,
-		description: 'Element visible to the authenticated WebUntis account. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		description:
+			'Ein für das angemeldete WebUntis-Konto sichtbares Element. Aus der Liste wählen oder per Expression eine ID angeben.',
 		displayOptions: {
 			show: {
 				resource: ['timetable'],
@@ -220,20 +221,42 @@ export const webUntisProperties: INodeProperties[] = [
 					'elementRange',
 					'elementWeek',
 				],
+				elementType: [1, 3, 4, 5],
 			},
 		},
 	},
 	{
-		displayName: 'Weekly Format',
+		displayName: 'Lehrer-ID',
+		name: 'teacherId',
+		type: 'number',
+		default: 0,
+		required: true,
+		description:
+			'WebUntis-ID der Lehrkraft. Für Konten ohne Berechtigung auf die komplette Lehrerliste kann die bekannte Lehrer-ID hier manuell eingetragen werden.',
+		displayOptions: {
+			show: {
+				resource: ['timetable'],
+				operation: [
+					'elementToday',
+					'elementDate',
+					'elementRange',
+					'elementWeek',
+				],
+				elementType: [2],
+			},
+		},
+	},
+	{
+		displayName: 'Wochenformat',
 		name: 'formatId',
 		type: 'options',
 		options: [
 			{
-				name: 'Include Teachers',
+				name: 'Lehrkräfte einschließen',
 				value: 1,
 			},
 			{
-				name: 'Omit Teachers',
+				name: 'Lehrkräfte auslassen',
 				value: 2,
 			},
 		],
@@ -246,12 +269,12 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Return Raw Data',
+		displayName: 'Rohdaten mit ausgeben',
 		name: 'returnRawData',
 		type: 'boolean',
 		default: false,
 		description:
-			'Whether to include the original WebUntis lesson object with normalized classic timetable entries',
+			'Ob zusätzlich zum normalisierten Stundenplaneintrag auch die originalen WebUntis-Rohdaten ausgegeben werden sollen',
 		displayOptions: {
 			show: {
 				resource: ['timetable'],
@@ -270,67 +293,67 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 
-	simpleOperation('classes', 'Get classes'),
+	simpleOperation('classes', 'Klassen abrufen'),
 	{
-		displayName: 'School Year ID',
+		displayName: 'Schuljahr-ID',
 		name: 'schoolYearId',
 		type: 'number',
 		default: 0,
 		description:
-			'Optional WebUntis school year ID. Use 0 to let WebUntis use its default.',
+			'Optionale WebUntis-Schuljahr-ID. Mit 0 verwendet WebUntis das Standardschuljahr.',
 		displayOptions: { show: { resource: ['classes'] } },
 	},
-	simpleOperation('teachers', 'Get teachers'),
-	simpleOperation('students', 'Get students'),
-	simpleOperation('subjects', 'Get subjects'),
-	simpleOperation('rooms', 'Get rooms'),
-	simpleOperation('departments', 'Get departments'),
-	simpleOperation('holidays', 'Get holidays'),
-	simpleOperation('timeGrid', 'Get time grid'),
+	simpleOperation('teachers', 'Lehrkräfte abrufen'),
+	simpleOperation('students', 'Schüler abrufen'),
+	simpleOperation('subjects', 'Fächer abrufen'),
+	simpleOperation('rooms', 'Räume abrufen'),
+	simpleOperation('departments', 'Abteilungen abrufen'),
+	simpleOperation('holidays', 'Ferien und Feiertage abrufen'),
+	simpleOperation('timeGrid', 'Zeitraster abrufen'),
 
 	{
-		displayName: 'Operation',
+		displayName: 'Aktion',
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['schoolYears'] } },
 		options: [
 			{
-				name: 'Get Many',
+				name: 'Alle abrufen',
 				value: 'getMany',
-				action: 'Get school years',
+				action: 'Schuljahre abrufen',
 			},
 			{
-				name: 'Get Current',
+				name: 'Aktuelles abrufen',
 				value: 'getCurrent',
-				action: 'Get current school year',
+				action: 'Aktuelles Schuljahr abrufen',
 			},
 			{
-				name: 'Get Latest',
+				name: 'Neuestes abrufen',
 				value: 'getLatest',
-				action: 'Get latest school year',
+				action: 'Neuestes Schuljahr abrufen',
 			},
 		],
 		default: 'getMany',
 	},
 
 	{
-		displayName: 'Operation',
+		displayName: 'Aktion',
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['exams'] } },
 		options: [
 			{
-				name: 'Get Range',
+				name: 'Zeitraum abrufen',
 				value: 'getRange',
-				action: 'Get exams for a date range',
+				action: 'Klassenarbeiten und Prüfungen für einen Zeitraum abrufen',
 			},
 		],
 		default: 'getRange',
 	},
 	{
-		displayName: 'Start Date',
+		displayName: 'Startdatum',
 		name: 'startDate',
 		type: 'dateTime',
 		required: true,
@@ -340,7 +363,7 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'End Date',
+		displayName: 'Enddatum',
 		name: 'endDate',
 		type: 'dateTime',
 		required: true,
@@ -350,10 +373,10 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Class Name or ID',
+		displayName: 'Klassenname oder ID',
 		name: 'classId',
 		type: 'options',
-		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+		description: 'Aus der Liste wählen oder per Expression eine ID angeben',
 		typeOptions: {
 			loadOptionsMethod: 'getClassesForExam',
 		},
@@ -363,39 +386,39 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Include Grades',
+		displayName: 'Noten einschließen',
 		name: 'withGrades',
 		type: 'boolean',
 		default: false,
 		description:
-			'Whether WebUntis should include grade information when the account has permission',
+			'Ob WebUntis Noteninformationen einbeziehen soll, sofern das Konto dazu berechtigt ist',
 		displayOptions: {
 			show: { resource: ['exams'] },
 		},
 	},
 
 	{
-		displayName: 'Operation',
+		displayName: 'Aktion',
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['homework'] } },
 		options: [
 			{
-				name: 'Get Homework',
+				name: 'Hausaufgaben abrufen',
 				value: 'getRange',
-				action: 'Get homework for a date range',
+				action: 'Hausaufgaben für einen Zeitraum abrufen',
 			},
 			{
-				name: 'Get Homework and Lessons',
+				name: 'Hausaufgaben und Unterricht abrufen',
 				value: 'getWithLessons',
-				action: 'Get homework and lessons for a date range',
+				action: 'Hausaufgaben und Unterricht für einen Zeitraum abrufen',
 			},
 		],
 		default: 'getRange',
 	},
 	{
-		displayName: 'Start Date',
+		displayName: 'Startdatum',
 		name: 'startDate',
 		type: 'dateTime',
 		required: true,
@@ -405,7 +428,7 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'End Date',
+		displayName: 'Enddatum',
 		name: 'endDate',
 		type: 'dateTime',
 		required: true,
@@ -416,29 +439,29 @@ export const webUntisProperties: INodeProperties[] = [
 	},
 
 	{
-		displayName: 'Operation',
+		displayName: 'Aktion',
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['absences'] } },
 		options: [
 			{
-				name: 'Get Absence Data',
+				name: 'Abwesenheiten abrufen',
 				value: 'getRange',
-				action: 'Get absence data for a date range',
+				action: 'Abwesenheiten für einen Zeitraum abrufen',
 			},
 			{
-				name: 'Get PDF URL',
+				name: 'PDF-URL abrufen',
 				value: 'getPdf',
-				action: 'Get an absence PDF URL',
+				action: 'PDF-URL für Abwesenheiten abrufen',
 				description:
-					'Returns an ephemeral WebUntis report URL. Treat this output as sensitive.',
+					'Gibt eine temporäre WebUntis-Berichts-URL zurück. Diese Ausgabe ist sensibel.',
 			},
 		],
 		default: 'getRange',
 	},
 	{
-		displayName: 'Start Date',
+		displayName: 'Startdatum',
 		name: 'startDate',
 		type: 'dateTime',
 		required: true,
@@ -448,7 +471,7 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'End Date',
+		displayName: 'Enddatum',
 		name: 'endDate',
 		type: 'dateTime',
 		required: true,
@@ -458,18 +481,29 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Excuse Status ID',
-		name: 'excuseStatusId',
+		displayName: 'Schüler-ID',
+		name: 'studentId',
 		type: 'number',
-		default: -1,
+		default: 0,
 		description:
-			'Use -1 for all excuse statuses',
+			'Optional: WebUntis-Schüler-ID, z. B. bei Elternkonten. Bei 0 wird die angemeldete Person verwendet.',
 		displayOptions: {
 			show: { resource: ['absences'] },
 		},
 	},
 	{
-		displayName: 'Include Lateness',
+		displayName: 'Entschuldigungsstatus-ID',
+		name: 'excuseStatusId',
+		type: 'number',
+		default: -1,
+		description:
+			'Mit -1 werden alle Entschuldigungsstatus berücksichtigt',
+		displayOptions: {
+			show: { resource: ['absences'] },
+		},
+	},
+	{
+		displayName: 'Verspätungen einschließen',
 		name: 'lateness',
 		type: 'boolean',
 		default: true,
@@ -481,7 +515,7 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Include Absences',
+		displayName: 'Abwesenheiten einschließen',
 		name: 'includeAbsences',
 		type: 'boolean',
 		default: true,
@@ -493,7 +527,7 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Excuse Group',
+		displayName: 'Entschuldigungsgruppe',
 		name: 'excuseGroup',
 		type: 'number',
 		default: 2,
@@ -506,43 +540,43 @@ export const webUntisProperties: INodeProperties[] = [
 	},
 
 	{
-		displayName: 'Operation',
+		displayName: 'Aktion',
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['inbox'] } },
 		options: [
 			{
-				name: 'Get Messages',
+				name: 'Nachrichten abrufen',
 				value: 'getMessages',
-				action: 'Get inbox messages',
+				action: 'Nachrichten aus dem Posteingang abrufen',
 			},
 		],
 		default: 'getMessages',
 	},
 
 	{
-		displayName: 'Operation',
+		displayName: 'Aktion',
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['news'] } },
 		options: [
 			{
-				name: 'Get Widget',
+				name: 'Widget abrufen',
 				value: 'getWidget',
-				action: 'Get news widget',
+				action: 'Neuigkeiten-Widget abrufen',
 			},
 			{
-				name: 'Get Messages of Day',
+				name: 'Nachrichten des Tages abrufen',
 				value: 'getMessages',
-				action: 'Get messages of the day',
+				action: 'Nachrichten des Tages abrufen',
 			},
 		],
 		default: 'getWidget',
 	},
 	{
-		displayName: 'Date',
+		displayName: 'Datum',
 		name: 'date',
 		type: 'dateTime',
 		required: true,
@@ -553,31 +587,31 @@ export const webUntisProperties: INodeProperties[] = [
 	},
 
 	{
-		displayName: 'Operation',
+		displayName: 'Aktion',
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['system'] } },
 		options: [
 			{
-				name: 'Get User Information',
+				name: 'Benutzerinformationen abrufen',
 				value: 'getUserInformation',
-				action: 'Get user information',
+				action: 'Benutzerinformationen abrufen',
 			},
 			{
-				name: 'Get Latest Import Time',
+				name: 'Letzte Importzeit abrufen',
 				value: 'getLatestImportTime',
-				action: 'Get latest import time',
+				action: 'Letzte Importzeit abrufen',
 			},
 			{
-				name: 'Get Status Data',
+				name: 'Statusdaten abrufen',
 				value: 'getStatusData',
-				action: 'Get status data',
+				action: 'Statusdaten abrufen',
 			},
 			{
-				name: 'Validate Session',
+				name: 'Sitzung prüfen',
 				value: 'validateSession',
-				action: 'Validate the web untis session',
+				action: 'WebUntis-Sitzung prüfen',
 			},
 		],
 		default: 'getUserInformation',
