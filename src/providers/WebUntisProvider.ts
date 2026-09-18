@@ -78,6 +78,7 @@ export interface WebUntisProvider {
 		startDate: Date,
 		endDate: Date,
 		excuseStatusId?: number,
+		studentId?: number,
 	): Promise<unknown>;
 	getAbsencePdf(
 		startDate: Date,
@@ -86,6 +87,7 @@ export interface WebUntisProvider {
 		lateness?: boolean,
 		absences?: boolean,
 		excuseGroup?: number,
+		studentId?: number,
 	): Promise<string>;
 
 	getInbox(): Promise<unknown>;
