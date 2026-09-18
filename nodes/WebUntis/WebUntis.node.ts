@@ -51,7 +51,7 @@ function userInformationToJson(
 function errorMessage(error: unknown): string {
 	return error instanceof Error
 		? error.message
-		: 'WebUntis connection test failed';
+		: 'WebUntis-Verbindungstest fehlgeschlagen';
 }
 
 function assertDateRange(
@@ -63,7 +63,7 @@ function assertDateRange(
 	if (startDate.getTime() > endDate.getTime()) {
 		throw new NodeOperationError(
 			node,
-			'Start Date must not be after End Date',
+			'Das Startdatum darf nicht nach dem Enddatum liegen',
 			{ itemIndex },
 		);
 	}
@@ -71,7 +71,7 @@ function assertDateRange(
 
 function optionName(value: unknown): string {
 	if (typeof value !== 'object' || value === null) {
-		return 'Unknown';
+		return 'Unbekannt';
 	}
 
 	const record = value as Record<string, unknown>;
@@ -99,7 +99,7 @@ function optionName(value: unknown): string {
 		}
 	}
 
-	return 'Unknown';
+	return 'Unbekannt';
 }
 
 function optionsFromRecords(
@@ -148,7 +148,8 @@ export class WebUntis implements INodeType {
 		usableAsTool: true,
 		subtitle:
 			'={{$parameter["resource"] + ": " + $parameter["operation"]}}',
-		description: 'Read data from WebUntis',
+		description:
+			'WebUntis-Daten für automatisierte Abläufe im Schul- & Familien-OS lesen und verarbeiten',
 		defaults: {
 			name: 'WebUntis',
 		},
@@ -176,7 +177,7 @@ export class WebUntis implements INodeType {
 					if (!credential.data) {
 						return {
 							status: 'Error',
-							message: 'WebUntis credentials are missing',
+							message: 'WebUntis-Zugangsdaten fehlen',
 						};
 					}
 
@@ -196,7 +197,7 @@ export class WebUntis implements INodeType {
 					return {
 						status: 'OK',
 						message:
-							'Connection successful. WebUntis authentication succeeded and user information was loaded.',
+							'Verbindung erfolgreich. WebUntis-Anmeldung und Benutzerinformationen wurden erfolgreich geladen.',
 					};
 				} catch (error) {
 					return {
@@ -263,7 +264,7 @@ export class WebUntis implements INodeType {
 
 					return [
 						{
-							name: 'All Classes',
+							name: 'Alle Klassen',
 							value: -1,
 						},
 						...optionsFromRecords(values),
@@ -364,7 +365,7 @@ export class WebUntis implements INodeType {
 					} else {
 						throw new NodeOperationError(
 							this.getNode(),
-							'Unsupported system operation',
+							'Nicht unterstützte Systemaktion',
 							{ itemIndex },
 						);
 					}
@@ -503,18 +504,26 @@ export class WebUntis implements INodeType {
 								endDate,
 							);
 					} else {
-						const elementId = Number(
-							this.getNodeParameter(
-								'elementId',
-								itemIndex,
-							),
-						);
 						const elementType = Number(
 							this.getNodeParameter(
 								'elementType',
 								itemIndex,
 							),
 						);
+						const elementId =
+							elementType === 2
+								? Number(
+										this.getNodeParameter(
+											'teacherId',
+											itemIndex,
+										),
+									)
+								: Number(
+										this.getNodeParameter(
+											'elementId',
+											itemIndex,
+										),
+									);
 
 						if (operation === 'elementToday') {
 							lessons =
@@ -602,7 +611,7 @@ export class WebUntis implements INodeType {
 						} else {
 							throw new NodeOperationError(
 								this.getNode(),
-								'Unsupported timetable operation',
+								'Nicht unterstützte Stundenplanaktion',
 								{ itemIndex },
 							);
 						}
@@ -860,6 +869,13 @@ export class WebUntis implements INodeType {
 							itemIndex,
 							-1,
 						) as number;
+					const studentId = Number(
+						this.getNodeParameter(
+							'studentId',
+							itemIndex,
+							0,
+						),
+					);
 
 					if (operation === 'getPdf') {
 						const url =
@@ -882,6 +898,9 @@ export class WebUntis implements INodeType {
 									itemIndex,
 									2,
 								) as number,
+								studentId > 0
+									? studentId
+									: undefined,
 							);
 
 						pushValue(
@@ -890,7 +909,7 @@ export class WebUntis implements INodeType {
 								sensitive:
 									true,
 								note:
-									'Treat this ephemeral WebUntis report URL as sensitive.',
+									'Diese temporäre WebUntis-Berichts-URL enthält sensible Daten und sollte vertraulich behandelt werden.',
 							},
 							itemIndex,
 						);
@@ -900,6 +919,9 @@ export class WebUntis implements INodeType {
 								startDate,
 								endDate,
 								excuseStatusId,
+								studentId > 0
+									? studentId
+									: undefined,
 							),
 							itemIndex,
 						);
