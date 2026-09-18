@@ -1,3 +1,13 @@
+/*
+ * Die folgenden n8n-Lintregeln gehen von englischen UI-Texten aus.
+ * Die sichtbaren Bezeichnungen dieser Node sind bewusst deutsch.
+ */
+/* eslint-disable n8n-nodes-base/node-param-display-name-miscased */
+/* eslint-disable n8n-nodes-base/node-param-operation-option-action-miscased */
+/* eslint-disable n8n-nodes-base/node-param-display-name-wrong-for-dynamic-options */
+/* eslint-disable n8n-nodes-base/node-param-description-wrong-for-dynamic-options */
+/* eslint-disable n8n-nodes-base/node-param-description-boolean-without-whether */
+
 import type { INodeProperties } from 'n8n-workflow';
 
 const simpleOperation = (
@@ -26,22 +36,22 @@ export const webUntisProperties: INodeProperties[] = [
 		type: 'options',
 		noDataExpression: true,
 		options: [
-			{ name: 'Abwesenheit', value: 'absences' },
-			{ name: 'Klasse', value: 'classes' },
 			{ name: 'Abteilung', value: 'departments' },
-			{ name: 'Klassenarbeit / Prüfung', value: 'exams' },
+			{ name: 'Abwesenheit', value: 'absences' },
+			{ name: 'Fach', value: 'subjects' },
 			{ name: 'Ferien / Feiertage', value: 'holidays' },
 			{ name: 'Hausaufgaben', value: 'homework' },
-			{ name: 'Posteingang', value: 'inbox' },
-			{ name: 'Neuigkeiten', value: 'news' },
-			{ name: 'Raum', value: 'rooms' },
-			{ name: 'Schuljahr', value: 'schoolYears' },
-			{ name: 'Schüler/in', value: 'students' },
-			{ name: 'Fach', value: 'subjects' },
-			{ name: 'System', value: 'system' },
+			{ name: 'Klasse', value: 'classes' },
+			{ name: 'Klassenarbeit / Prüfung', value: 'exams' },
 			{ name: 'Lehrkraft', value: 'teachers' },
-			{ name: 'Zeitraster', value: 'timeGrid' },
+			{ name: 'Neuigkeiten', value: 'news' },
+			{ name: 'Posteingang', value: 'inbox' },
+			{ name: 'Raum', value: 'rooms' },
+			{ name: 'Schüler/in', value: 'students' },
+			{ name: 'Schuljahr', value: 'schoolYears' },
 			{ name: 'Stundenplan', value: 'timetable' },
+			{ name: 'System', value: 'system' },
+			{ name: 'Zeitraster', value: 'timeGrid' },
 		],
 		default: 'timetable',
 	},
@@ -59,9 +69,9 @@ export const webUntisProperties: INodeProperties[] = [
 				action: 'Stundenplan eines Elements für ein Datum abrufen',
 			},
 			{
-				name: 'Element für Zeitraum abrufen',
-				value: 'elementRange',
-				action: 'Stundenplan eines Elements für einen Zeitraum abrufen',
+				name: 'Element für heute abrufen',
+				value: 'elementToday',
+				action: 'Stundenplan eines Elements für heute abrufen',
 			},
 			{
 				name: 'Element für Woche abrufen',
@@ -69,9 +79,9 @@ export const webUntisProperties: INodeProperties[] = [
 				action: 'Stundenplan eines Elements für eine Woche abrufen',
 			},
 			{
-				name: 'Element für heute abrufen',
-				value: 'elementToday',
-				action: 'Stundenplan eines Elements für heute abrufen',
+				name: 'Element für Zeitraum abrufen',
+				value: 'elementRange',
+				action: 'Stundenplan eines Elements für einen Zeitraum abrufen',
 			},
 			{
 				name: 'Meine Klasse für Datum abrufen',
@@ -94,14 +104,14 @@ export const webUntisProperties: INodeProperties[] = [
 				action: 'Meinen Stundenplan für ein Datum abrufen',
 			},
 			{
-				name: 'Meinen Stundenplan für Zeitraum abrufen',
-				value: 'ownRange',
-				action: 'Meinen Stundenplan für einen Zeitraum abrufen',
-			},
-			{
 				name: 'Meinen Stundenplan für Woche abrufen',
 				value: 'ownWeek',
 				action: 'Meinen Stundenplan für eine Woche abrufen',
+			},
+			{
+				name: 'Meinen Stundenplan für Zeitraum abrufen',
+				value: 'ownRange',
+				action: 'Meinen Stundenplan für einen Zeitraum abrufen',
 			},
 			{
 				name: 'Meinen Stundenplan heute abrufen',
@@ -202,7 +212,7 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Elementname oder ID',
+		displayName: 'Element oder ID',
 		name: 'elementId',
 		type: 'options',
 		typeOptions: {
@@ -211,7 +221,7 @@ export const webUntisProperties: INodeProperties[] = [
 		default: '',
 		required: true,
 		description:
-			'Ein für das angemeldete WebUntis-Konto sichtbares Element. Aus der Liste wählen oder per Expression eine ID angeben.',
+			'Ein für das angemeldete WebUntis-Konto sichtbares Element. Aus der Liste wählen oder eine ID per Expression angeben.',
 		displayOptions: {
 			show: {
 				resource: ['timetable'],
@@ -274,7 +284,7 @@ export const webUntisProperties: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		description:
-			'Ob zusätzlich zum normalisierten Stundenplaneintrag auch die originalen WebUntis-Rohdaten ausgegeben werden sollen',
+			'Zusätzlich zum normalisierten Stundenplaneintrag auch die originalen WebUntis-Rohdaten ausgeben',
 		displayOptions: {
 			show: {
 				resource: ['timetable'],
@@ -373,10 +383,10 @@ export const webUntisProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Klassenname oder ID',
+		displayName: 'Klasse oder ID',
 		name: 'classId',
 		type: 'options',
-		description: 'Aus der Liste wählen oder per Expression eine ID angeben',
+		description: 'Aus der Liste wählen oder eine Klassen-ID per Expression angeben',
 		typeOptions: {
 			loadOptionsMethod: 'getClassesForExam',
 		},
@@ -391,7 +401,7 @@ export const webUntisProperties: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		description:
-			'Ob WebUntis Noteninformationen einbeziehen soll, sofern das Konto dazu berechtigt ist',
+			'WebUntis-Noteninformationen einbeziehen, sofern das Konto dazu berechtigt ist',
 		displayOptions: {
 			show: { resource: ['exams'] },
 		},
