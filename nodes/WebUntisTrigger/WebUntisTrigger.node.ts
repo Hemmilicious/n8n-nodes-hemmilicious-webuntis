@@ -55,7 +55,7 @@ export class WebUntisTrigger implements INodeType {
 		version: 1,
 		subtitle: '={{$parameter["event"]}}',
 		description:
-			'Starts workflows when selected WebUntis data changes',
+			'Startet Automationen im Schul- & Familien-OS, wenn sich ausgewählte WebUntis-Daten ändern',
 		defaults: {
 			name: 'WebUntis Trigger',
 		},
@@ -71,42 +71,74 @@ export class WebUntisTrigger implements INodeType {
 		outputs: [NodeConnectionTypes.Main],
 		properties: [
 			{
-				displayName: 'Event',
+				displayName: 'Ereignis',
 				name: 'event',
 				type: 'options',
 				options: [
 					{
-						name: 'Absences Changed',
+						name: 'Abwesenheiten geändert',
 						value: 'absencesChanged',
 					},
 					{
-						name: 'Exams Changed',
+						name: 'Klassenarbeiten / Prüfungen geändert',
 						value: 'examsChanged',
 					},
 					{
-						name: 'Homework Changed',
+						name: 'Hausaufgaben geändert',
 						value: 'homeworkChanged',
 					},
 					{
-						name: 'Inbox Changed',
+						name: 'Posteingang geändert',
 						value: 'inboxChanged',
 					},
 					{
-						name: 'My Timetable Changed',
+						name: 'Stundenplan geändert',
 						value: 'timetableChanged',
 					},
 					{
-						name: 'WebUntis Data Updated',
+						name: 'WebUntis-Daten aktualisiert',
 						value: 'dataUpdated',
 						description:
-							'Triggers when the WebUntis latest import timestamp changes',
+							'Startet, wenn sich der letzte WebUntis-Importzeitpunkt ändert',
 					},
 				],
 				default: 'dataUpdated',
 				required: true,
 			},
 			{
-				displayName: 'Days Ahead',
+				displayName: 'Schüler-ID',
+				name: 'studentId',
+				type: 'number',
+				typeOptions: {
+					minValue: 0,
+				},
+				default: 0,
+				description:
+					'Optional: WebUntis-Schüler-ID für Elternkonten. Bei 0 wird der angemeldete Benutzer verwendet.',
+				displayOptions: {
+					show: {
+						event: [
+							'timetableChanged',
+							'absencesChanged',
+						],
+					},
+				},
+			},
+			{
+				displayName: 'Klassen-ID',
+				name: 'classId',
+				type: 'number',
+				default: -1,
+				description:
+					'WebUntis-Klassen-ID für die Prüfung auf Änderungen bei Klassenarbeiten. Mit -1 wird keine bestimmte Klasse erzwungen.',
+				displayOptions: {
+					show: {
+						event: ['examsChanged'],
+					},
+				},
+			},
+			{
+				displayName: 'Tage voraus',
 				name: 'daysAhead',
 				type: 'number',
 				typeOptions: {
@@ -115,7 +147,7 @@ export class WebUntisTrigger implements INodeType {
 				},
 				default: 14,
 				description:
-					'How many days ahead to include in timetable, homework, and exam change detection',
+					'Wie viele Tage im Voraus bei Stundenplan, Hausaufgaben und Klassenarbeiten geprüft werden sollen',
 				displayOptions: {
 					show: {
 						event: [
@@ -127,7 +159,7 @@ export class WebUntisTrigger implements INodeType {
 				},
 			},
 			{
-				displayName: 'Days Back',
+				displayName: 'Tage zurück',
 				name: 'daysBack',
 				type: 'number',
 				typeOptions: {
@@ -136,7 +168,7 @@ export class WebUntisTrigger implements INodeType {
 				},
 				default: 30,
 				description:
-					'How many days back to include in absence change detection',
+					'Wie viele Tage rückwirkend bei Abwesenheiten geprüft werden sollen',
 				displayOptions: {
 					show: {
 						event: ['absencesChanged'],
@@ -158,7 +190,7 @@ export class WebUntisTrigger implements INodeType {
 					if (!credential.data) {
 						return {
 							status: 'Error',
-							message: 'WebUntis credentials are missing',
+							message: 'WebUntis-Zugangsdaten fehlen',
 						};
 					}
 
@@ -173,7 +205,7 @@ export class WebUntisTrigger implements INodeType {
 
 					return {
 						status: 'OK',
-						message: 'Connection successful.',
+						message: 'Verbindung erfolgreich.',
 					};
 				} catch (error) {
 					return {
@@ -224,11 +256,24 @@ export class WebUntisTrigger implements INodeType {
 					'daysAhead',
 					14,
 				) as number;
+				const studentId = Number(
+					this.getNodeParameter(
+						'studentId',
+						0,
+					),
+				);
 				const timetable =
-					await provider.getOwnTimetableForRange(
-						dateOffsetFromToday(0),
-						dateOffsetFromToday(daysAhead),
-					);
+					studentId > 0
+						? await provider.getTimetableForRange(
+								dateOffsetFromToday(0),
+								dateOffsetFromToday(daysAhead),
+								studentId,
+								5,
+							)
+						: await provider.getOwnTimetableForRange(
+								dateOffsetFromToday(0),
+								dateOffsetFromToday(daysAhead),
+							);
 
 				currentData = timetable;
 				outputData =
@@ -256,10 +301,16 @@ export class WebUntisTrigger implements INodeType {
 					'daysAhead',
 					14,
 				) as number;
+				const classId = Number(
+					this.getNodeParameter(
+						'classId',
+						-1,
+					),
+				);
 				const exams = await provider.getExams(
 					dateOffsetFromToday(0),
 					dateOffsetFromToday(daysAhead),
-					-1,
+					classId,
 					false,
 				);
 
@@ -283,11 +334,20 @@ export class WebUntisTrigger implements INodeType {
 					'daysBack',
 					30,
 				) as number;
+				const studentId = Number(
+					this.getNodeParameter(
+						'studentId',
+						0,
+					),
+				);
 				const absences =
 					await provider.getAbsences(
 						dateOffsetFromToday(-daysBack),
 						dateOffsetFromToday(1),
 						-1,
+						studentId > 0
+							? studentId
+							: undefined,
 					);
 
 				currentData = absences;
@@ -300,7 +360,7 @@ export class WebUntisTrigger implements INodeType {
 			} else {
 				throw new NodeOperationError(
 					this.getNode(),
-					`Unsupported WebUntis trigger event "${event}"`,
+					`Nicht unterstütztes WebUntis-Trigger-Ereignis "${event}"`,
 				);
 			}
 
